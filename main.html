@@ -1,0 +1,275 @@
+<meta charset="utf-8">
+<style type="text/css">
+	body {
+		width: 100%;
+		height: 100vh;
+		margin: 0px;
+		padding: 0px;
+	}
+</style>
+<canvas></canvas>
+<script type="text/javascript">
+	texturesSRC = [
+		"man/head.png",
+		"man/arm_left.png",
+		"man/arm_right.png",
+		"man/hand_left.png",
+		"man/hand_right.png",
+		"man/body.png",
+		"man/leg_left.png",
+		"man/leg_right.png",
+		"man/shoes_left.png",
+		"man/shoes_right.png",
+	];
+	textures = [];
+
+	function loadImages(idx) {
+		if (idx >= texturesSRC.length) return false;
+		let img = new Image();
+		img.src = texturesSRC[idx];
+		img.onload = () => {
+			textures.push(img);
+			loadImages(idx+1);
+		}
+	}
+
+	loadImages(0);
+
+	var canvas = document.querySelector("canvas");
+	canvas.width = document.body.clientWidth;
+	canvas.height = document.body.clientHeight;
+
+	var ctx = canvas.getContext("2d");
+
+	var p0 = [400, 100];
+	var p1 = [400, 150];
+	var p2 = [400, 350];
+	var p3 = [300, 200];
+	var p4 = [200, 180];
+	var p5 = [500, 200];
+	var p6 = [600, 180];
+	var p7 = [350, 420];
+	var p8 = [330, 530];
+	var p9 = [450, 420];
+	var pA = [470, 530];
+	var ptsArr = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, pA];
+	var edges = [
+		{
+			"points": [0, 1],
+			"length": 100
+		},
+		{
+			"points": [1, 2],
+			"length": 100
+		},
+		{
+			"points": [1, 3],
+			"length": 100
+		},
+		{
+			"points": [3, 4],
+			"length": 100
+		},
+		{
+			"points": [1, 5],
+			"length": 100
+		},
+		{
+			"points": [5, 6],
+			"length": 100
+		},
+		{
+			"points": [2, 7],
+			"length": 100
+		},
+		{
+			"points": [7, 8],
+			"length": 100
+		},
+		{
+			"points": [2, 9],
+			"length": 100
+		},
+		{
+			"points": [9, 10],
+			"length": 100
+		}
+	];
+	var active;
+
+	var onMove = false;
+	window.onmousedown = (ev) => {
+		onMove = true;
+		active = checkCollision(ev.clientX, ev.clientY);
+	}
+
+	window.onmousemove = (ev) => {
+		if (!onMove || active===false) return false;
+		ptsArr[active][0] = ev.clientX;
+		ptsArr[active][1] = ev.clientY;
+		drawPts();
+		calcEdges(active)
+	}
+
+	window.onmouseup = (ev) => {
+		onMove = false;
+	}
+
+	function drawPts() {
+		ctx.clearRect(0,0, canvas.width, canvas.height);
+		
+		drawEdges();
+		drawTextures();
+
+		ptsArr.map((pt)=>{
+			ctx.beginPath();
+				ctx.fillStyle = "rgba(0,0,0,0.2)";
+				ctx.arc(pt[0], pt[1], 25, 0, 2*Math.PI, false);
+				ctx.fill();
+			ctx.closePath();
+		});
+	}
+	function drawEdges() {
+		edges.map((edge)=>{
+			ctx.beginPath();
+				ctx.moveTo(ptsArr[edge.points[0]][0], ptsArr[edge.points[0]][1]);
+				ctx.lineTo(ptsArr[edge.points[1]][0], ptsArr[edge.points[1]][1]);
+				ctx.stroke();
+			ctx.closePath();
+		})
+	}
+
+	function checkCollision(x,y) {
+		let activeIdx = -1;
+		ptsArr.filter((pt, idx)=>{
+			let diffX = (x - pt[0])*(x - pt[0]);
+			let diffY = (y - pt[1])*(y - pt[1]);
+
+			if (diffX + diffY <= 25*25) {
+				activeIdx = idx;
+			}
+		})
+
+		return activeIdx==-1 
+			? false
+			: activeIdx;
+	}
+
+	function calcEdges(pointIdx) {
+		let ignore = [];
+
+		function run(ptIdx) {
+			if (ignore.length >= edges.length) {
+				return false;
+			}
+
+			for (let i=0; i<edges.length; i++) {
+				if (ignore.indexOf(i) >= 0) continue;
+				let edge = edges[i];
+
+				if (edge.points.indexOf(ptIdx) >= 0) {
+					let t = (edge.points.indexOf(ptIdx) + 1) % 2;
+					p2_idx = edge.points[t];
+
+					let alX = Math.pow(ptsArr[ptIdx][0] - ptsArr[p2_idx][0], 2),
+						alY = Math.pow(ptsArr[ptIdx][1] - ptsArr[p2_idx][1], 2),
+						actualLength = Math.sqrt(alX+alY);
+
+					if (actualLength != edge.length) {
+						let ky = ptsArr[p2_idx][1] - ptsArr[ptIdx][1],
+							kx = ptsArr[p2_idx][0] - ptsArr[ptIdx][0],
+							k = ky/kx,
+							a = (ptsArr[ptIdx][0]>ptsArr[p2_idx][0])
+								? Math.atan(k) + Math.PI
+								: Math.atan(k);
+
+						let dx = (actualLength - edge.length) * Math.cos(a),
+							dy = (actualLength - edge.length) * Math.sin(a);
+
+						ptsArr[p2_idx][0] -= dx;
+						ptsArr[p2_idx][1] -= dy;
+					}
+
+					ignore.push(i);
+					run(p2_idx);
+				}
+			}	
+		}
+			
+		run(pointIdx);
+	}
+
+	drawPts();
+
+	function drawTextures() {
+		if (texturesSRC.length != textures.length) return false;
+		// texturesSRC = [
+		// 	"man/head.png",
+		// 	"man/arm_left.png",
+		// 	"man/arm_right.png",
+		// 	"man/hand_left.png",
+		// 	"man/hand_right.png",
+		// 	"man/body.png",
+		// 	"man/leg_left.png",
+		// 	"man/leg_right.png",
+		// 	"man/shoes_left.png",
+		// 	"man/shoes_right.png",
+		// ];
+		// textures = [];
+		// p1/p2 - textures[5]
+		// 
+		
+		drawRotatedImage(
+			textures[1],
+			p3[0]-textures[1].width/4,
+			p3[1]+textures[1].height/6,
+			angleBy2twoPts(p3, p4) + Math.PI + Math.PI/6
+		)
+		drawRotatedImage(
+			textures[2],
+			p5[0]+textures[2].width/4,
+			p5[1]+textures[2].height/6,
+			angleBy2twoPts(p5, p6) - Math.PI/6
+		)
+
+		drawRotatedImage(
+			textures[6],
+			p7[0],
+			p7[1]+textures[6].height/5,
+			angleBy2twoPts(p7, p8) - Math.PI/1.8
+		)
+		drawRotatedImage(
+			textures[7],
+			p9[0],
+			p9[1]+textures[7].height/5,
+			angleBy2twoPts(p9, pA) - Math.PI/2.2
+		)
+
+		drawRotatedImage(
+			textures[5], 
+			p1[0], 
+			p1[1]+textures[5].height/4, 
+			angleBy2twoPts(p1, p2) - Math.PI/2
+		);
+		ctx.drawImage(textures[0], p0[0]-textures[0].width/2, p0[1]-textures[0].height/2);
+		
+	}
+
+	function drawRotatedImage(image, x, y, angle) { 
+		ctx.save(); 
+		ctx.translate(x, y);
+		ctx.rotate(angle);
+		ctx.drawImage(image, -(image.width/2), -(image.height/2));
+		ctx.restore(); 
+	}
+
+	function angleBy2twoPts(p1, p2) {
+		let ky = p2[1] - p1[1],
+			kx = p2[0] - p1[0],
+			k = ky/kx,
+			a = (p1[0]>p2[0])
+				? Math.atan(k) + Math.PI
+				: Math.atan(k);
+		return a;
+	}
+</script>
