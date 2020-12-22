@@ -251,6 +251,33 @@
 			p1[1]+textures[5].height/4, 
 			angleBy2twoPts(p1, p2) - Math.PI/2
 		);
+
+		drawRotatedImage(
+			textures[8], 
+			p7[0]-textures[7].width/4, 
+			p7[1]+textures[7].height/1.4, 
+			angleBy2twoPts(p1, p2) - Math.PI/1.8
+		);
+		drawRotatedImage(
+			textures[9], 
+			p9[0]+textures[9].width/3, 
+			p9[1]+textures[9].height/0.35, 
+			angleBy2twoPts(p1, p2) - Math.PI/1.8
+		);
+
+		drawRotatedImage(
+			textures[3], 
+			p4[0]-textures[4].width/2, 
+			p4[1]+textures[4].height/2, 
+			angleBy2twoPts(p1, p2) - Math.PI/1.8
+		);
+		drawRotatedImage(
+			textures[4], 
+			p6[0]+textures[6].width/2.5, 
+			p6[1]+textures[6].height/4, 
+			angleBy2twoPts(p1, p2) - Math.PI/1.8
+		);
+
 		ctx.drawImage(textures[0], p0[0]-textures[0].width/2, p0[1]-textures[0].height/2);
 		
 	}
