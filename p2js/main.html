@@ -10,7 +10,11 @@
                 lHand_shape = new p2.Circle({ radius: 0.1 }),
                 rArm_shape  = new p2.Circle({ radius: 0.1 }),
                 rHand_shape = new p2.Circle({ radius: 0.1 }),
-                body_shape  = new p2.Circle({ radius: 0.1 });
+                body_shape  = new p2.Circle({ radius: 0.1 }),
+                rLeg_shape  = new p2.Circle({ radius: 0.1 }),
+                lLeg_shape  = new p2.Circle({ radius: 0.1 }),
+                rFoot_shape = new p2.Circle({ radius: 0.1 }),
+                lFoot_shape = new p2.Circle({ radius: 0.1 });
 
 			var world = new p2.World({
 				gravity: [0, -9]
@@ -23,42 +27,42 @@
 
                 var head = new p2.Body({
                 	mass: 1,
-                	position: [0.5, 0.5]
+                	position: [0, 1]
                 });
                 head.addShape(head_shape);
                 world.addBody(head);
 
                 var neck = new p2.Body({
                     mass: 1,
-                    position: [0.5, 0.5]
+                    position: [0, 0.6]
                 });
                 neck.addShape(neck_shape);
                 world.addBody(neck);
 
                 var lArm = new p2.Body({
                     mass: 1,
-                    position: [0.5, 0.5]
+                    position: [-0.6, 0.6]
                 });
                 lArm.addShape(lArm_shape);
                 world.addBody(lArm);
 
                 var rArm = new p2.Body({
                     mass: 1,
-                    position: [0.5, 0.5]
+                    position: [0.6, 0.6]
                 });
                 rArm.addShape(rArm_shape);
                 world.addBody(rArm);
 
                 var lHand = new p2.Body({
                     mass: 1,
-                    position: [0.5, 0.5]
+                    position: [-1.2, 0.6]
                 });
                 lHand.addShape(lHand_shape);
                 world.addBody(lHand);
 
                 var rHand = new p2.Body({
                     mass: 1,
-                    position: [0.5, 0.5]
+                    position: [1.2, 0.6]
                 });
                 rHand.addShape(rHand_shape);
                 world.addBody(rHand);
@@ -70,48 +74,103 @@
                 body.addShape(body_shape);
                 world.addBody(body);
 
+                var lLeg = new p2.Body({
+                    mass: 1,
+                    position: [-0.3, -0.6]
+                });
+                lLeg.addShape(lLeg_shape);
+                world.addBody(lLeg);
+
+                var rLeg = new p2.Body({
+                    mass: 1,
+                    position: [0.3, -0.6]
+                });
+                rLeg.addShape(rLeg_shape);
+                world.addBody(rLeg);
+
+                var lFoot = new p2.Body({
+                    mass: 1,
+                    position: [-0.4, -1.3]
+                });
+                lFoot.addShape(lFoot_shape);
+                world.addBody(lFoot);
+
+                var rFoot = new p2.Body({
+                    mass: 1,
+                    position: [0.4, -1.3]
+                });
+                rFoot.addShape(rFoot_shape);
+                world.addBody(rFoot);
 
             var headNeck = new p2.RevoluteConstraint(head,neck, {
-            	localPivotA: [0.1, 0.1],
-            	localPivotB: [0.25, 0.25]
+            	localPivotA: [0, -0.2-0.4/2],
+            	localPivotB: [0, 0]
             });
-            headNeck.setLimits(Math.PI/2, Math.PI/2);
+            headNeck.setLimits(Math.PI/2-Math.PI/18, Math.PI/2+Math.PI/18);
             world.addConstraint(headNeck);
 
-            var neckLArm = new p2.RevoluteConstraint(neck,lArm, {
-                localPivotA: [0, 0],
-                localPivotB: [0.5, 0.5]
+            var neckLArm = new p2.RevoluteConstraint(lArm, neck, {
+                localPivotA: [-0.6, 0],
+                localPivotB: [-0.05, 0]
             });
-            neckLArm.setLimits( -Math.PI/4, -Math.PI/4+Math.PI/4 );
+            neckLArm.setLimits( -Math.PI/2-Math.PI/4, -Math.PI/2+Math.PI/4 );
             world.addConstraint(neckLArm);
 
-            var neckRArm = new p2.RevoluteConstraint(neck,rArm, {
-                localPivotA: [0, 0],
-                localPivotB: [0.5, 0.5]
+                var lHandArm = new p2.RevoluteConstraint(lHand, lArm, {
+                    localPivotA: [-0.6, 0],
+                    localPivotB: [-0.05, 0]
+                });
+                lHandArm.setLimits( 0-Math.PI/4, 0+Math.PI/4 );
+                world.addConstraint(lHandArm);
+
+            var neckRArm = new p2.RevoluteConstraint(rArm, neck, {
+                localPivotA: [0.6, 0],
+                localPivotB: [0.05, 0]
             });
-            neckRArm.setLimits( Math.PI/4, Math.PI/2 );
+            neckRArm.setLimits( -Math.PI/2-Math.PI/4, -Math.PI/2+Math.PI/4 );
             world.addConstraint(neckRArm);
 
-            var lHandArm = new p2.RevoluteConstraint(lArm,lHand, {
-                localPivotA: [0, 0],
-                localPivotB: [0.5, 0.5]
-            });
-            lHandArm.setLimits( -Math.PI/2, 0 );
-            world.addConstraint(lHandArm);
+                var rHandArm = new p2.RevoluteConstraint(rHand, rArm, {
+                    localPivotA: [0.6, 0],
+                    localPivotB: [0.05, 0]
+                });
+                rHandArm.setLimits( 0-Math.PI/4, 0+Math.PI/4 );
+                world.addConstraint(rHandArm);
 
-            var rHandArm = new p2.RevoluteConstraint(rArm,rHand, {
-                localPivotA: [0, 0],
-                localPivotB: [0.5, 0.5]
+            var bodyNeck = new p2.RevoluteConstraint(body, neck, {
+                localPivotA: [0, 0.6],
+                localPivotB: [0, 0]
             });
-            rHandArm.setLimits( 0, Math.PI/2 );
-            world.addConstraint(rHandArm);
-
-            var bodyNeck = new p2.RevoluteConstraint(neck, body, {
-                localPivotA: [0, 0],
-                localPivotB: [0.6, 0.6]
-            });
-            bodyNeck.setLimits( Math.PI/8, Math.PI/8 );
+            bodyNeck.setLimits( Math.PI/2, Math.PI/2 );
             world.addConstraint(bodyNeck);
+
+            var lLegBody = new p2.RevoluteConstraint(lLeg, body, {
+                localPivotA: [0, -0.6],
+                localPivotB: [0, 0]
+            });
+            lLegBody.setLimits( -Math.PI/1.2-Math.PI/16, -Math.PI/1.2+Math.PI/16 );
+            world.addConstraint(lLegBody);
+
+                var lLegFoot = new p2.RevoluteConstraint(lFoot, lLeg, {
+                    localPivotA: [0, -0.6],
+                    localPivotB: [0, 0]
+                });
+                lLegFoot.setLimits( -Math.PI/6, -Math.PI/6+Math.PI/8 );
+                world.addConstraint(lLegFoot);
+
+            var rLegBody = new p2.RevoluteConstraint(rLeg, body, {
+                localPivotA: [0, 0.6],
+                localPivotB: [0, 0]
+            });
+            rLegBody.setLimits( -Math.PI/6-Math.PI/16, -Math.PI/6+Math.PI/16 );
+            world.addConstraint(rLegBody);
+
+                var rLegFoot = new p2.RevoluteConstraint(rFoot, rLeg, {
+                    localPivotA: [0, -0.6],
+                    localPivotB: [0, 0]
+                });
+                rLegFoot.setLimits( -Math.PI/1.2-Math.PI/8, -Math.PI/1.2 );
+                world.addConstraint(rLegFoot);
 
             var ground_shape = new p2.Plane();
             var ground = new p2.Body({
