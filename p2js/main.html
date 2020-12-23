@@ -178,6 +178,31 @@
             });
             ground.addShape(ground_shape);
             world.addBody(ground);
+
+
+            var dx=0, dy=0;
+            world.on("postStep", function(ev) {
+                lArm.position[0] += dx;
+                lArm.position[1] += dy;
+                // lArm.angle -= bodyAcc;
+                // lHand, lArm
+            });
+
+            this.on("keydown", function(ev) {
+                console.log(ev.keyCode);
+                switch(ev.keyCode){
+                    case 75:
+                        dx = 0.1;
+                        break;
+                    case 77:
+                        dy = 0.1;
+                        break;
+                }
+                
+            }).on("keyup", function(ev) {
+                dx = 0;
+                dy = 0;
+            });
 		})
 	</script>
 </body>
