@@ -1,0 +1,124 @@
+<meta charset="utf-8">
+<script type="text/javascript" src="lib/p2.min.js"></script>
+<script type="text/javascript" src="lib/p2.renderer.min.js"></script>
+<body>
+	<script type="text/javascript">
+		var app = new p2.WebGLRenderer(function(){
+            var head_shape  = new p2.Circle({ radius: 0.2 }),
+                neck_shape  = new p2.Circle({ radius: 0.1 }),
+                lArm_shape  = new p2.Circle({ radius: 0.1 }),
+                lHand_shape = new p2.Circle({ radius: 0.1 }),
+                rArm_shape  = new p2.Circle({ radius: 0.1 }),
+                rHand_shape = new p2.Circle({ radius: 0.1 }),
+                body_shape  = new p2.Circle({ radius: 0.1 });
+
+			var world = new p2.World({
+				gravity: [0, -9]
+			})
+
+			this.setWorld(world);
+
+			world.solver.iterations = 100;
+            world.solver.tolerance = 0.002;
+
+                var head = new p2.Body({
+                	mass: 1,
+                	position: [0.5, 0.5]
+                });
+                head.addShape(head_shape);
+                world.addBody(head);
+
+                var neck = new p2.Body({
+                    mass: 1,
+                    position: [0.5, 0.5]
+                });
+                neck.addShape(neck_shape);
+                world.addBody(neck);
+
+                var lArm = new p2.Body({
+                    mass: 1,
+                    position: [0.5, 0.5]
+                });
+                lArm.addShape(lArm_shape);
+                world.addBody(lArm);
+
+                var rArm = new p2.Body({
+                    mass: 1,
+                    position: [0.5, 0.5]
+                });
+                rArm.addShape(rArm_shape);
+                world.addBody(rArm);
+
+                var lHand = new p2.Body({
+                    mass: 1,
+                    position: [0.5, 0.5]
+                });
+                lHand.addShape(lHand_shape);
+                world.addBody(lHand);
+
+                var rHand = new p2.Body({
+                    mass: 1,
+                    position: [0.5, 0.5]
+                });
+                rHand.addShape(rHand_shape);
+                world.addBody(rHand);
+
+                var body = new p2.Body({
+                    mass: 1,
+                    position: [0, 0]
+                });
+                body.addShape(body_shape);
+                world.addBody(body);
+
+
+            var headNeck = new p2.RevoluteConstraint(head,neck, {
+            	localPivotA: [0.1, 0.1],
+            	localPivotB: [0.25, 0.25]
+            });
+            headNeck.setLimits(Math.PI/2, Math.PI/2);
+            world.addConstraint(headNeck);
+
+            var neckLArm = new p2.RevoluteConstraint(neck,lArm, {
+                localPivotA: [0, 0],
+                localPivotB: [0.5, 0.5]
+            });
+            neckLArm.setLimits( -Math.PI/4, -Math.PI/4+Math.PI/4 );
+            world.addConstraint(neckLArm);
+
+            var neckRArm = new p2.RevoluteConstraint(neck,rArm, {
+                localPivotA: [0, 0],
+                localPivotB: [0.5, 0.5]
+            });
+            neckRArm.setLimits( Math.PI/4, Math.PI/2 );
+            world.addConstraint(neckRArm);
+
+            var lHandArm = new p2.RevoluteConstraint(lArm,lHand, {
+                localPivotA: [0, 0],
+                localPivotB: [0.5, 0.5]
+            });
+            lHandArm.setLimits( -Math.PI/2, 0 );
+            world.addConstraint(lHandArm);
+
+            var rHandArm = new p2.RevoluteConstraint(rArm,rHand, {
+                localPivotA: [0, 0],
+                localPivotB: [0.5, 0.5]
+            });
+            rHandArm.setLimits( 0, Math.PI/2 );
+            world.addConstraint(rHandArm);
+
+            var bodyNeck = new p2.RevoluteConstraint(neck, body, {
+                localPivotA: [0, 0],
+                localPivotB: [0.6, 0.6]
+            });
+            bodyNeck.setLimits( Math.PI/8, Math.PI/8 );
+            world.addConstraint(bodyNeck);
+
+            var ground_shape = new p2.Plane();
+            var ground = new p2.Body({
+            	position: [0, -2]
+            });
+            ground.addShape(ground_shape);
+            world.addBody(ground);
+		})
+	</script>
+</body>
