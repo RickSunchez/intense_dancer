@@ -5,8 +5,7 @@
 	<script type="text/javascript">
 		var app = new p2.WebGLRenderer(function(){
 			var c1_shape = new p2.Circle({ radius: 0.1 }),
-				c2_shape = new p2.Circle({ radius: 0.1 }),
-				c3_shape = new p2.Circle({ radius: 0.1 });
+				c2_shape = new p2.Circle({ radius: 0.1 });
 
 
 			var world = new p2.World({
@@ -32,32 +31,19 @@
             c2.addShape(c2_shape);
             world.addBody(c2);
 
-            var c3 = new p2.Body({
-            	mass: 2,
-            	position: [0.6, 0.6]
-            });
-            c3.addShape(c3_shape);
-            world.addBody(c3);
-
             var edge1 = new p2.RevoluteConstraint(c1,c2, {
             	localPivotA: [0.1, 0.1],
             	localPivotB: [0.3, 0.3]
             });
             edge1.setLimits(0, Math.PI);
 
-            var edge2 = new p2.RevoluteConstraint(c2,c3, {
-            	localPivotA: [0.1, 0.1],
-            	localPivotB: [0.3, 0.3]
-            });
-            edge2.setLimits(0, Math.PI/2);
-
             world.addConstraint(edge1);
-            world.addConstraint(edge2);
 
             var ground_shape = new p2.Plane();
             var ground = new p2.Body({
             	position: [0, -2]
             });
+            
             ground.addShape(ground_shape);
             world.addBody(ground);
 		})
